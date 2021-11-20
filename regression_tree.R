@@ -32,3 +32,22 @@ test$pred <- predict(regtree, test , type = "vector") # TYPE = "CLASS" FOR CLASS
 
 MSE2 = mean((test$pred - test$Collection)^2)
 
+# Tree Pruning
+fulltree = rpart(formula = Collection~., data = train, control = rpart.control(cp = 0))
+rpart.plot(fulltree, box.palette = "RdYlGn", digits = -3)
+printcp(fulltree)
+plotcp(regtree)
+
+mincp <- regtree$cptable[which.min(regtree$cptable[,"xerror"]), "CP"]
+
+prunedtree = prune(fulltree, cp = mincp)
+rpart.plot(prunedtree, box.palette = "RdYlGn", digits = -3)
+
+test$fulltree = predict(fulltree, test, type = "vector")
+MSE2 = mean((test$fulltree - test$Collection)^2)
+
+test$pruned = predict(prunedtree, test, type = "vector")
+MSE2pruned = mean((test$pruned - test$Collection)^2)
+
+accuracy_postprun = mean(test$pred == test$left)
+# accuracy of prunedtree is better and has least error compared to fulltree and normal tree.
